@@ -16,6 +16,8 @@ implementations."
 
 #define EINVALID_FLAG "expected flag of type 'str' at index %d"
 #define ELIBCLANG_LOAD "unable to load libclang: %s"
+#define EARGS_INIT_FALGS_ITER "flags expected to be iterable"
+#define EARGS_INIT_FLAGS_ITER_FAILED "unexpected error when iterating flags"
 #define EARGS_ON_FILE_OPEN "expected arguments: 'str', 'str'"
 #define EARGS_ON_FILE_CLOSE "expected arguments: 'str'"
 #define EARGS_ON_FILE_SAVE "expected arguments: 'str', 'str'"
@@ -64,22 +66,38 @@ Ide_new(PyTypeObject* type, PyObject* args, PyObject* kwds)
 }
 
 static int
-_Ide_read_flags(pyvimclang_Ide* self, PyObject* flags_tuple)
+_Ide_read_flags(pyvimclang_Ide* self, PyObject* flags)
 {
-    int nflags = PyTuple_Size(flags_tuple);
+    PyObject *iterator = PyObject_GetIter(flags);
+    PyObject *item;
 
     self->nflags = 0;
-    self->flags = (char const**)malloc(sizeof(char*) * nflags);
+    self->flags = (char const**)malloc(sizeof(char*) * PyObject_Length(flags));
 
-    for (int i = 0; i < nflags; ++i)
+    if (iterator == NULL)
     {
-        PyObject* flag = PyTuple_GetItem(flags_tuple, i);
-        if (strcmp(flag->ob_type->tp_name, "str") != 0)
+        PyErr_SetString(PyExc_TypeError, EARGS_INIT_FALGS_ITER);
+        return -1;
+    }
+
+    int i = 0;
+    while ((item = PyIter_Next(iterator)))
+    {
+        if (strcmp(item->ob_type->tp_name, "str") != 0)
         {
             PyErr_Format(PyExc_TypeError, EINVALID_FLAG, i);
             return -1;
         }
-        self->flags[i] = PyUnicode_AS_DATA(flag);
+        self->flags[i++] = PyUnicode_AS_DATA(item);
+        Py_DECREF(item);
+    }
+
+    Py_DECREF(iterator);
+
+    if (PyErr_Occurred())
+    {
+        PyErr_SetString(PyExc_TypeError, EARGS_INIT_FLAGS_ITER_FAILED);
+        return -1;
     }
 
     return 0;

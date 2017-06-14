@@ -26,7 +26,7 @@ int main(int argc, char const* argv[])
 }
 """
 
-ide = pyvimclang.Ide(LIBCLANG_PATH, ("-I/Users/vova/ports/usr/include",))
+ide = pyvimclang.Ide(LIBCLANG_PATH, ["-I/Users/vova/ports/usr/include"])
 
 t0 = datetime.datetime.now()
 ide.on_file_open(FILE)
