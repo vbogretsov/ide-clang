@@ -20,8 +20,7 @@ public:
 
 int main(int argc, char const* argv[])
 {
-    person p;
-    p.
+    person p
     return 0;
 }
 """
@@ -34,7 +33,7 @@ t1 = datetime.datetime.now()
 print("parsed in", t1 - t0)
 
 t0 = datetime.datetime.now()
-completions = ide.find_completions(FILE, 17, 7, CONTENT)
+completions = ide.find_completions(FILE, 16, 13, CONTENT)
 t1 = datetime.datetime.now()
 print("completed in", t1 - t0)
 

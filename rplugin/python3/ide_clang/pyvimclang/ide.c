@@ -4,8 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <stdio.h>
-
 #include <clang-c/Index.h>
 
 #include "hashmap.h"
@@ -69,6 +67,7 @@ static bool unsigned_equals(const void* a, const void* b)
 
 static void dispose_unit(void* ctx, const void* filename, void* unit)
 {
+    free((void*)filename);
     ((ide_t*)ctx)->libclang->dispose_tu((CXTranslationUnit)unit);
 }
 
@@ -263,7 +262,9 @@ void ide_on_file_open(ide_t* ide, const char* filename)
             NULL,
             0,
             TRANSLATION_OPTIONS);
-        hashmap_set(ide->units, filename, unit);
+
+        const char* key = strdup(filename);
+        hashmap_set(ide->units, key, unit);
     }
 }
 
@@ -296,6 +297,9 @@ static void read_completion(
     void (*oncompletion)(void*, completion_t*))
 {
     completion_t completion;
+    completion.abbr[0] = '\0';
+    completion.word[0] = '\0';
+    completion.menu[0] = '\0';
     unsigned abbr_i = 0;
     unsigned word_i = 0;
     unsigned menu_i = 0;
