@@ -34,6 +34,8 @@ static PyObject* TAG_MENU;
 static PyObject* TAG_WORD;
 static PyObject* TAG_ABBR;
 static PyObject* TAG_KIND;
+static PyObject* TAG_SORT;
+static PyObject* MENU_NAME;
 
 static void
 Ide_dealloc(pyvimclang_Ide* self)
@@ -198,9 +200,10 @@ static void insert_completion(void* ctx, completion_t* completion)
     PyObject* item = PyDict_New();
     char kind[] = {completion->kind, '\0'};
     PyDict_SetItem(item, TAG_KIND, PyUnicode_FromString(kind));
-    PyDict_SetItem(item, TAG_MENU, PyUnicode_FromString(completion->menu));
+    PyDict_SetItem(item, TAG_MENU, MENU_NAME);
     PyDict_SetItem(item, TAG_ABBR, PyUnicode_FromString(completion->abbr));
     PyDict_SetItem(item, TAG_WORD, PyUnicode_FromString(completion->word));
+    PyDict_SetItem(item, TAG_SORT, PyUnicode_FromString(completion->sort));
     PyList_Append((PyObject*)ctx, item);
 }
 
@@ -391,9 +394,17 @@ PyInit_pyvimclang(void)
             Py_INCREF(TAG_WORD);
             PyModule_AddObject(module, "TAG_WORD", TAG_WORD);
 
+            TAG_SORT = PyUnicode_FromString("sort");
+            Py_INCREF(TAG_SORT);
+            PyModule_AddObject(module, "TAG_SORT", TAG_SORT);
+
             TAG_KIND = PyUnicode_FromString("kind");
             Py_INCREF(TAG_KIND);
             PyModule_AddObject(module, "TAG_KIND", TAG_KIND);
+
+            MENU_NAME = PyUnicode_FromString("[clang]");
+            Py_INCREF(MENU_NAME);
+            PyModule_AddObject(module, "MENU_NAME", MENU_NAME);
         }
     }
     return module;

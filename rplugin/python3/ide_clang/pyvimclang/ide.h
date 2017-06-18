@@ -7,8 +7,9 @@
 #ifndef IDE_H
 #define IDE_H
 
-#define ABBR_SIZE 32
-#define MENU_SIZE 128
+#define ABBR_SIZE 128
+#define MENU_SIZE 128  // TODO: remove menu member.
+#define SORT_SIZE 128
 #define WORD_SIZE 128
 #define INFO_SIZE 1024
 
@@ -18,7 +19,8 @@ typedef struct ide ide_t;
 typedef struct
 {
     char abbr[ABBR_SIZE];
-    char menu[MENU_SIZE];
+    char menu[MENU_SIZE];  // TODO: remove menu member.
+    char sort[SORT_SIZE];
     char word[WORD_SIZE];
     char info[INFO_SIZE];
     char kind;

@@ -24,6 +24,7 @@ typedef void (*complete_chunk_t)(
     unsigned*,
     unsigned*,
     unsigned*,
+    unsigned*,
     const char*);
 
 struct ide
@@ -102,13 +103,13 @@ static hashmap_t* init_kind_names()
 {
     hashmap_t* map = hashmap_alloc(&unsigned_hash, &unsigned_equals);
 
-    hashmap_set(map, (void*)CXCursor_StructDecl, (void*)"struct");
-    hashmap_set(map, (void*)CXCursor_UnionDecl, (void*)"union");
-    hashmap_set(map, (void*)CXCursor_EnumConstantDecl, (void*)"enum");
-    hashmap_set(map, (void*)CXCursor_EnumDecl, (void*)"enum");
-    hashmap_set(map, (void*)CXCursor_TypedefDecl, (void*)"typedef");
-    hashmap_set(map, (void*)CXCursor_ClassTemplate, (void*)"class");
-    hashmap_set(map, (void*)CXCursor_ClassDecl, (void*)"class");
+    hashmap_set(map, (void*)CXCursor_StructDecl, (void*)"struct ");
+    hashmap_set(map, (void*)CXCursor_UnionDecl, (void*)"union ");
+    hashmap_set(map, (void*)CXCursor_EnumConstantDecl, (void*)"enum ");
+    hashmap_set(map, (void*)CXCursor_EnumDecl, (void*)"enum ");
+    hashmap_set(map, (void*)CXCursor_TypedefDecl, (void*)"typedef ");
+    hashmap_set(map, (void*)CXCursor_ClassTemplate, (void*)"class ");
+    hashmap_set(map, (void*)CXCursor_ClassDecl, (void*)"class ");
 
     return map;
 }
@@ -134,10 +135,13 @@ static void complete_typed_text(
     unsigned* abrr_i,
     unsigned* word_i,
     unsigned* menu_i,
+    unsigned* sort_i,
     const char* part)
 {
     buffcpy(completion->word, word_i, WORD_SIZE, part);
-    buffcpy(completion->menu, menu_i, MENU_SIZE, part);
+    // buffcpy(completion->menu, menu_i, MENU_SIZE, part);
+    buffcpy(completion->abbr, abrr_i, ABBR_SIZE, part);
+    buffcpy(completion->sort, sort_i, SORT_SIZE, part);
 }
 
 static void complete_text(
@@ -145,10 +149,13 @@ static void complete_text(
     unsigned* abrr_i,
     unsigned* word_i,
     unsigned* menu_i,
+    unsigned* sort_i,
     const char* part)
 {
     buffcpy(completion->word, word_i, WORD_SIZE, part);
-    buffcpy(completion->menu, menu_i, MENU_SIZE, part);
+    // buffcpy(completion->menu, menu_i, MENU_SIZE, part);
+    buffcpy(completion->abbr, abrr_i, ABBR_SIZE, part);
+    buffcpy(completion->sort, sort_i, SORT_SIZE, part);
 }
 
 static void complete_placeholder(
@@ -156,12 +163,14 @@ static void complete_placeholder(
     unsigned* abrr_i,
     unsigned* word_i,
     unsigned* menu_i,
+    unsigned* sort_i,
     const char* part)
 {
     buffcpy(completion->word, word_i, WORD_SIZE, "<#");
     buffcpy(completion->word, word_i, WORD_SIZE, part);
     buffcpy(completion->word, word_i, WORD_SIZE, "#>");
-    buffcpy(completion->menu, menu_i, MENU_SIZE, part);
+    // buffcpy(completion->menu, menu_i, MENU_SIZE, part);
+    buffcpy(completion->abbr, abrr_i, ABBR_SIZE, part);
 }
 
 static void complete_result_type(
@@ -169,9 +178,11 @@ static void complete_result_type(
     unsigned* abrr_i,
     unsigned* word_i,
     unsigned* menu_i,
+    unsigned* sort_i,
     const char* part)
 {
     buffcpy(completion->abbr, abrr_i, ABBR_SIZE, part);
+    buffcpy(completion->abbr, abrr_i, ABBR_SIZE, " ");
 }
 
 static void complete_symbol(
@@ -179,10 +190,12 @@ static void complete_symbol(
     unsigned* abrr_i,
     unsigned* word_i,
     unsigned* menu_i,
+    unsigned* sort_i,
     const char* part)
 {
     buffcpy(completion->word, word_i, WORD_SIZE, part);
-    buffcpy(completion->menu, menu_i, MENU_SIZE, part);
+    // buffcpy(completion->menu, menu_i, MENU_SIZE, part);
+    buffcpy(completion->abbr, abrr_i, ABBR_SIZE, part);
 }
 
 static hashmap_t* init_completion_chunks()
@@ -300,9 +313,11 @@ static void read_completion(
     completion.abbr[0] = '\0';
     completion.word[0] = '\0';
     completion.menu[0] = '\0';
+    completion.sort[0] = '\0';
     unsigned abbr_i = 0;
     unsigned word_i = 0;
     unsigned menu_i = 0;
+    unsigned sort_i = 0;
 
     void* kind_char;
     if (hashmap_get(ide->kind_chars, (void*)result->CursorKind, &kind_char))
@@ -334,7 +349,7 @@ static void read_completion(
         if (hashmap_get(ide->completion_chunks, (void*)chunk_kind, &chunk_fn))
         {
             (*(complete_chunk_t)chunk_fn)(
-                &completion, &abbr_i, &word_i, &menu_i, part);
+                &completion, &abbr_i, &word_i, &menu_i, &sort_i, part);
         }
 
         ide->libclang->dispose_string(chunk_text);
