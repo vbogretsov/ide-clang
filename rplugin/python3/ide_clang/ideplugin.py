@@ -1,6 +1,6 @@
 import ide
-
 from ide_clang import pyvimclang
+
 
 TRIGGERS = r"((::)|(\.)|(->))$"
 
@@ -16,6 +16,7 @@ class ClangIde(ide.Plugin):
 
     def on_file_open(self, filename):
         self.ide.on_file_open(filename)
+        self.nvim.command(":echo 'parsed'")
 
     def on_file_save(self, filename):
         self.ide.on_file_save(self, filename)

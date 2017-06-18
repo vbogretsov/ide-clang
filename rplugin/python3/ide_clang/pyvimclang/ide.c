@@ -10,14 +10,14 @@
 #include "libclang.h"
 
 static const unsigned TRANSLATION_OPTIONS =
-    CXTranslationUnit_PrecompiledPreamble |
-    CXTranslationUnit_CacheCompletionResults |
-    CXTranslationUnit_Incomplete;
+    CXTranslationUnit_PrecompiledPreamble
+    | CXTranslationUnit_CacheCompletionResults
+    | CXTranslationUnit_Incomplete;
 
 static const unsigned COMPLETION_OPTIONS =
-    CXCodeComplete_IncludeMacros |
-    CXCodeComplete_IncludeCodePatterns |
-    CXCodeComplete_IncludeBriefComments;
+    CXCodeComplete_IncludeMacros
+    | CXCodeComplete_IncludeBriefComments
+    | CXCodeComplete_IncludeCodePatterns;
 
 typedef void (*complete_chunk_t)(
     completion_t*,
@@ -139,7 +139,6 @@ static void complete_typed_text(
     const char* part)
 {
     buffcpy(completion->word, word_i, WORD_SIZE, part);
-    // buffcpy(completion->menu, menu_i, MENU_SIZE, part);
     buffcpy(completion->abbr, abrr_i, ABBR_SIZE, part);
     buffcpy(completion->sort, sort_i, SORT_SIZE, part);
 }
@@ -153,7 +152,6 @@ static void complete_text(
     const char* part)
 {
     buffcpy(completion->word, word_i, WORD_SIZE, part);
-    // buffcpy(completion->menu, menu_i, MENU_SIZE, part);
     buffcpy(completion->abbr, abrr_i, ABBR_SIZE, part);
     buffcpy(completion->sort, sort_i, SORT_SIZE, part);
 }
@@ -166,10 +164,9 @@ static void complete_placeholder(
     unsigned* sort_i,
     const char* part)
 {
-    buffcpy(completion->word, word_i, WORD_SIZE, "<#");
-    buffcpy(completion->word, word_i, WORD_SIZE, part);
-    buffcpy(completion->word, word_i, WORD_SIZE, "#>");
-    // buffcpy(completion->menu, menu_i, MENU_SIZE, part);
+    // buffcpy(completion->word, word_i, WORD_SIZE, "<#");
+    // buffcpy(completion->word, word_i, WORD_SIZE, part);
+    // buffcpy(completion->word, word_i, WORD_SIZE, "#>");
     buffcpy(completion->abbr, abrr_i, ABBR_SIZE, part);
 }
 
@@ -193,8 +190,7 @@ static void complete_symbol(
     unsigned* sort_i,
     const char* part)
 {
-    buffcpy(completion->word, word_i, WORD_SIZE, part);
-    // buffcpy(completion->menu, menu_i, MENU_SIZE, part);
+    // buffcpy(completion->word, word_i, WORD_SIZE, part);
     buffcpy(completion->abbr, abrr_i, ABBR_SIZE, part);
 }
 

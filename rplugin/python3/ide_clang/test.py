@@ -37,7 +37,7 @@ void ShowPerson(Person& person)
 int main(int argc, char const* argv[])
 {
     Person person;
-    p
+    per
     return 0;
 }
 
