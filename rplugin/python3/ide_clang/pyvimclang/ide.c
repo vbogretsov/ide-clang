@@ -261,20 +261,28 @@ void ide_free(ide_t* ide)
 void ide_on_file_open(ide_t* ide, const char* filename)
 {
     void* unit;
-    if (!hashmap_get(ide->units, filename, &unit))
+    if (hashmap_get(ide->units, filename, &unit))
     {
-        unit = ide->libclang->parse_tu(
-            ide->index,
-            filename,
-            ide->flags,
-            ide->nflags,
-            NULL,
-            0,
-            TRANSLATION_OPTIONS);
-
-        const char* key = strdup(filename);
-        hashmap_set(ide->units, key, unit);
+        return;
     }
+
+    unit = ide->libclang->parse_tu(
+        ide->index,
+        filename,
+        ide->flags,
+        ide->nflags,
+        NULL,
+        0,
+        TRANSLATION_OPTIONS);
+
+    if (!unit)
+    {
+        // TODO: add error details.
+        return ;
+    }
+
+    const char* key = strdup(filename);
+    hashmap_set(ide->units, key, unit);
 }
 
 void ide_on_file_close(ide_t* ide, const char* filename)
@@ -310,6 +318,7 @@ static void read_completion(
     completion.word[0] = '\0';
     completion.menu[0] = '\0';
     completion.sort[0] = '\0';
+
     unsigned abbr_i = 0;
     unsigned word_i = 0;
     unsigned menu_i = 0;
@@ -370,6 +379,7 @@ void ide_find_completions(
     void* unit;
     if (!hashmap_get(ide->units, filename, &unit))
     {
+        // TODO: add error details.
         return;
     }
 
@@ -388,6 +398,7 @@ void ide_find_completions(
 
     if (!completions)
     {
+        // TODO: add error details.
         return;
     }
 
@@ -395,4 +406,6 @@ void ide_find_completions(
     {
         read_completion(ide, &(completions->Results[i]), ctx, oncompletion);
     }
+
+    ide->libclang->dispose_completion(completions);
 }
